@@ -89,22 +89,24 @@ class BSTMap:
             # as the tree's iterator.
             return iter([])
 
-        """
-        New code added by James Gohl 1001299043
-        """
-
     def __setitem__(self, key: any, value: any) -> 'BSTMap._Node':
         """ Adds the key value pair to the map
-        or  changes the value if the key already exists
+        or  changes the value associated with the key if it already exists
+
         >>> grades = BSTMap([(111537, 'A+'), (101156, 'A+'), (127118, 'B')]) 
         >>> grades[123] = "A+"
         >>> grades
         {123: 'A+', 101156: 'A+', 111537: 'A+', 127118: 'B'}
-
+        >>> grades = BSTMap()
+        >>> grades[123] = "A+"
+        >>> grades
+        {123: 'A+'}
         """
+
         def _add(node: 'BSTMap._Node', key: any, value: any) -> 'BSTMap._Node':
-            """Insert x into the binary search tree rooted at node and
-            return the reference to tree's root node.
+            """Insert key and value into the binary search tree rooted at node and
+            return the reference to tree's root node. If the key already exists
+            updates its value.
             """
             if node is None:
                 self._num_entries += 1
@@ -116,17 +118,18 @@ class BSTMap:
             else:
                 node.value = value
             return node
-            # return node
 
         self._root = _add(self._root, key, value)
 
     def __getitem__(self, key: any) -> any:
         """ Returns the value value associated with the key
-        or  raises a key error if the key isnt in the map
+        or  raises a key error if the key is not in the map
+
         >>> grades = BSTMap([(111537, 'A+'), (101156, 'A+'), (127118, 'B')]) 
         >>> grades[111537] 
         'A+'
-
+        >>>grades[1] 
+        KeyError: '1'
         """
         def _get(node: 'BSTMap._Node', key: any) -> any:
             """Find the value of the key recursively and raise KeyError
@@ -143,20 +146,21 @@ class BSTMap:
 
         return _get(self._root, key)
 
-    def get(self, key: any, default=None) -> any:
+    def get(self, key: any, default: any = None) -> any:
         """ Returns the value value associated with the key
-        or  returns a default value or passed in default value Nne
+        or  returns a default value or passed in default value
+
         >>> grades = BSTMap([(111537, 'A+'), (101156, 'A+'), (127118, 'B')]) 
         >>> grades.get(111537)
         'A+'
         >>> grades.get(1, "test")
-        "test"
-        >>> grades.get(1)
-        default
+        'test'
+        >>> print(grades.get(1))
+        None
         """
         def _get(node: 'BSTMap._Node', key: any, default) -> any:
-            """Find the value of the key recursively and raise default
-            is no key exists.
+            """Find the value of the key recursively and returns default if no
+            key exists
             """
             if node is None:
                 return default
@@ -172,28 +176,42 @@ class BSTMap:
     def __len__(self) -> int:
         """
         Returns the length of the ditionary
+
         >>> grades = BSTMap([(111537, 'A+'), (101156, 'A+'), (127118, 'B')]) 
         >>> len(grades)
-        >>> 3
+        3
+        >>> grades[1] = 'C+'
+        >>> len(grades) 
+        4
         """
         return self._num_entries
 
-    """
-    ADD DOC STRING
-    """
+    def __contains__(self, key) -> bool:
+        """
+        Returns true if the key is in the map otherwise return False
 
-    def _contains(self, node: 'BSTMap._Node', key: any):
-        if node is None:
-            return False
-        if key < node.key:
-            return self._contains(node.left, key)
-        if key > node.key:
-            return self._contains(node.right, key)
-        else:
-            return True
+        >>> grades = BSTMap([(111537, 'A+'), (101156, 'A+'), (127118, 'B')]) 
+        >>> 101156 in grades
+        True
+        >>> 1 in grades
+        False
+        """
 
-    def __contains__(self, key):
-        return self._contains(self._root, key)
+        def _contains(node: 'BSTMap._Node', key: any) -> bool:
+            """
+            Looks for key in map recursively.
+            Returns true if the key is in the map otherwise return False
+            """
+            if node is None:
+                return False
+            if key < node.key:
+                return _contains(node.left, key)
+            if key > node.key:
+                return _contains(node.right, key)
+            else:
+                return True
+
+        return _contains(self._root, key)
 
 
 
